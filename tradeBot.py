@@ -12,7 +12,7 @@ import config
 client = Client(config.api_key, config.api_secret_key)
 
 #------------------------------------------------------------------------------------
-# Logger setup
+
 logger = logging.getLogger('tradeBotLogger')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
@@ -28,15 +28,13 @@ logger.info('Bot started...')
 
 followedMarkets = {'BTC' : 'trade' , 'ETH' : 'trade'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
- 
+stableCoin = 'BUSD'
+
 tradeAmount = 100.0
 
-stableCoin = 'BUSD'
-precision = 6
 updateRate = 1
 cooldown = int(10 / updateRate) 
 timeSpan = 45
-
 
 ticks = {}
 
@@ -75,10 +73,10 @@ class Market:
                         self.arrayIndex = 0
 
         def getAverageMacd(self):
-                return round(average(self.macdArray), 3)
+                return round(average(self.macdArray), 2)
 
         def getAverageRsi(self):
-                return round(average(self.rsiArray), 3)
+                return round(average(self.rsiArray), 2)
 
 #------------------------------------------------------------------------------------
 
@@ -95,8 +93,6 @@ class CandleParser:
                         self.ma200 = talib.SMA(self.close, timeperiod=200)
                         self.rsi5 = talib.RSI(self.close, timeperiod=5)   
                         self.dea, self.macdSignal, uaua = talib.MACD(self.close, fastperiod=12, slowperiod=26, signalperiod=9)   
-                        self.rocp = talib.ROCP(self.close)  
-                        self.sar = talib.SAR(self.high, self.low) 
 	                
 #------------------------------------------------------------------------------------
 
@@ -178,7 +174,6 @@ def buyOrder(market, amount):
 #------------------------------------------------------------------------------------
 
 def sellOrder(market, amount):
-        
 
         orderPrice = getCurrentPrice(client, market.marketname)
 
