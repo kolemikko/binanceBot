@@ -9,7 +9,7 @@ import talib
 #------------------------------------------------------------------------------------
 
 import config
-client = Client(config.api_key, config.api_secret_key)
+client = Client(config.apiKey, config.apiSecretKey)
 
 #------------------------------------------------------------------------------------
 
@@ -30,11 +30,11 @@ followedMarkets = {'BTC' : 'trade' , 'ETH' : 'trade'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
 
-tradeAmount = 100.0
+tradeAmount = 1000.0
 
-updateRate = 1
+updateRate = 10
 cooldown = int(10 / updateRate) 
-timeSpan = 45
+timeSpan = int(45 / updateRate)
 
 ticks = {}
 
@@ -209,16 +209,16 @@ def sellOrder(market, amount):
 #------------------------------------------------------------------------------------
 
 def updateData(market):
-        candles = client.get_klines(symbol=market.marketname, interval=intervals['1Min'])
+        candles = client.get_klines(symbol=market.marketname, interval=intervals['15Min'])
         indicators = CandleParser(candles)       
         market.currentPrice = getCurrentPrice(client, market.marketname)
         market.macd = round(indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1], 2)
         market.rsi = round(indicators.rsi5[-1], 2)
-        market.ma200_1min = round(indicators.ma200[-1], 2)
+        # market.ma200_1min = round(indicators.ma200[-1], 2)
 
-        cand = client.get_klines(symbol=market.marketname, interval=intervals['15Min'])
-        indic = CandleParser(candles)       
-        market.ma200_15min = round(indic.ma200[-1], 2)
+        # cand = client.get_klines(symbol=market.marketname, interval=intervals['15Min'])
+        # indic = CandleParser(candles)       
+        # market.ma200_15min = round(indic.ma200[-1], 2)
 
         market.updateArrays(market.macd, market.rsi)
 
@@ -249,7 +249,8 @@ def main():
                         
                         if (m.positionActive == False):
                                 if (m.readyToBuy):
-                                        if (m.macd < 0.0 and m.macd > m.getAverageMacd() + 2.0):
+                                        # if (m.macd > -1.0 and m.macd > m.getAverageMacd() + 2.0):
+                                        if (m.macd > -1.0):
                                                 buyOrder(m, tradeAmount)
 
                                 if (m.rsi < 29 and m.macd < -4.0):
