@@ -61,8 +61,7 @@ class Market:
                 self.arrayIndex = 0
                 self.macdArray = np.array([0] * timeSpan)
                 self.rsiArray = np.array([0] * timeSpan)
-                self.ma200_15min = 0.0
-                self.ma200_1min = 0.0
+                self.ma200 = 0.0
 
         def updateArrays(self, macd, rsi):
                 self.macdArray[self.arrayIndex] = macd
@@ -165,7 +164,7 @@ def buyOrder(market, amount):
                 market.readyToBuy = False
                 updateBalance(client, market)
 
-                logger.info("Bought {} at price {}".format( market.marketname, market.boughtPrice))
+                logger.info("Bought {} at price {}".format( market.coin, market.boughtPrice))
                 logger.info("Current Balance: {}".format(market.balance))
                 print("Bought {} {} at {}".format(orderAmount, market.coin, market.boughtPrice))
 
@@ -200,7 +199,7 @@ def sellOrder(market, amount):
         market.readyToSell = False
         updateBalance(client, market)
 
-        logger.info("Sold {} at price {}".format(market.marketname, market.soldPrice))
+        logger.info("Sold {} at price {}".format(market.coin, market.soldPrice))
         logger.info("Current Balance: {}".format(market.balance))
         print("Sold {} {} at {}".format(orderAmount, market.coin, market.soldPrice))
 
@@ -208,17 +207,13 @@ def sellOrder(market, amount):
 
 #------------------------------------------------------------------------------------
 
-def updateData(market):
-        candles = client.get_klines(symbol=market.marketname, interval=intervals['15Min'])
+def updateData(market, interval):
+        candles = client.get_klines(symbol=market.marketname, interval=intervals[interval])
         indicators = CandleParser(candles)       
         market.currentPrice = getCurrentPrice(client, market.marketname)
         market.macd = round(indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1], 2)
         market.rsi = round(indicators.rsi5[-1], 2)
-        # market.ma200_1min = round(indicators.ma200[-1], 2)
-
-        # cand = client.get_klines(symbol=market.marketname, interval=intervals['15Min'])
-        # indic = CandleParser(candles)       
-        # market.ma200_15min = round(indic.ma200[-1], 2)
+        market.ma200 = round(indicators.ma200[-1], 2)
 
         market.updateArrays(market.macd, market.rsi)
 
@@ -243,13 +238,12 @@ def main():
 
         while (True):
                 for m in markets:
-                        updateData(m)
+                        updateData(m, '15Min')
 
                         print("RSI: {} | MACD: {} ({}) | {} Balance: {} ".format(m.rsi, m.macd, m.getAverageMacd(), m.coin, m.balance), end='\r')
                         
                         if (m.positionActive == False):
                                 if (m.readyToBuy):
-                                        # if (m.macd > -1.0 and m.macd > m.getAverageMacd() + 2.0):
                                         if (m.macd > -1.0):
                                                 buyOrder(m, tradeAmount)
 
@@ -265,7 +259,7 @@ def main():
                                         m.readyToSell = True
 
                                 # stop-loss
-                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd()):
+                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd() - 3.0):
                                         sellOrder(m, tradeAmount)
 
                         m.lastPrice = m.currentPrice
