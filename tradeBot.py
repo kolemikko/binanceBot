@@ -30,9 +30,9 @@ followedMarkets = {'BTC' : 'trade' , 'ETH' : 'trade'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
 
-tradeAmount = 1000.0
+tradeAmount = 500.0
 
-updateRate = 10
+updateRate = 30
 cooldown = int(10 / updateRate) 
 timeSpan = int(45 / updateRate)
 
