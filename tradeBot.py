@@ -30,7 +30,7 @@ followedMarkets = {'BTC' : 'trade' , 'ETH' : 'trade'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
 
-tradeAmount = 500.0
+tradeAmount = 1000.0
 
 updateRate = 30
 cooldown = int(10 / updateRate) 
@@ -224,7 +224,7 @@ def main():
         for m, t in followedMarkets.items():
                 if (m == 'BTC'):
                         market = Market(m, t) 
-                        market.currentPrice = getCurrentPrice(client, market.marketname)
+                        updateBalance(client, market)
                         markets.append(market)
                 
         for m in markets:
@@ -233,8 +233,6 @@ def main():
                         if filt['filterType'] == 'LOT_SIZE':
                                 ticks[m.coin] = filt['stepSize'].find('1') - 2
                                 break
-
-                updateBalance(client, m)
 
         while (True):
                 for m in markets:
@@ -263,7 +261,8 @@ def main():
                                         sellOrder(m, tradeAmount)
 
                         m.lastPrice = m.currentPrice
-                        time.sleep(updateRate)
+
+                time.sleep(updateRate)
 
 
 
