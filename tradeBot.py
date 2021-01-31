@@ -59,8 +59,8 @@ class Market:
                 self.macd = 0.0
                 self.rsi = 0.0
                 self.arrayIndex = 0
-                self.macdArray = np.array([0] * timeSpan)
-                self.rsiArray = np.array([0] * timeSpan)
+                self.macdArray = np.array([0.0] * timeSpan)
+                self.rsiArray = np.array([0.0] * timeSpan)
                 self.ma200 = 0.0
 
         def updateArrays(self, macd, rsi):
@@ -72,7 +72,7 @@ class Market:
                         self.arrayIndex = 0
 
         def getAverageMacd(self):
-                return average(self.macdArray)
+                return round(average(self.macdArray), 6)
 
         def getAverageRsi(self):
                 return round(average(self.rsiArray), 2)
@@ -211,7 +211,7 @@ def updateData(market, interval):
         candles = client.get_klines(symbol=market.marketname, interval=intervals[interval])
         indicators = CandleParser(candles)       
         market.currentPrice = getCurrentPrice(client, market.marketname)
-        market.macd = indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1]
+        market.macd = round(indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1], 6)
         market.rsi = round(indicators.rsi5[-1], 2)
         market.ma200 = round(indicators.ma200[-1], 2)
 
