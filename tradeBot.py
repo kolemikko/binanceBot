@@ -125,6 +125,13 @@ def getCurrentPrice(client, market):
 def updateBalance(client, market):
         market.balance = getCurrentBalance(client, market.coin)
 
+
+#------------------------------------------------------------------------------------
+
+def logAndPrint(message):
+        print(message)
+        logger.info(message)
+
 #------------------------------------------------------------------------------------
 
 def buyOrder(market, amount):
@@ -164,9 +171,8 @@ def buyOrder(market, amount):
                 market.readyToBuy = False
                 updateBalance(client, market)
 
-                logger.info("Bought {} at price {}".format( market.coin, market.boughtPrice))
-                logger.info("Current Balance: {}".format(market.balance))
-                print("Bought {} {} at {}".format(orderAmount, market.coin, market.boughtPrice))
+                logAndPrint("Bought {} {} at price {}".format(orderAmount, market.coin, market.boughtPrice))
+                logAndPrint("Current Balance: {}".format(market.balance))
 
         return order
 
@@ -199,16 +205,24 @@ def sellOrder(market, amount):
         market.readyToSell = False
         updateBalance(client, market)
 
-        logger.info("Sold {} at price {}".format(market.coin, market.soldPrice))
-        logger.info("Current Balance: {}".format(market.balance))
-        print("Sold {} {} at {}".format(orderAmount, market.coin, market.soldPrice))
+        logAndPrint("Sold {} {} at price {}".format(orderAmount, market.coin, market.soldPrice))
+        logAndPrint("Current Balance: {}".format(market.balance))
 
         return order
 
 #------------------------------------------------------------------------------------
 
 def updateData(market, interval):
-        candles = client.get_klines(symbol=market.marketname, interval=intervals[interval])
+        gotData = False
+        while not gotData:
+                try:
+                        candles = client.get_klines(symbol=market.marketname, interval=intervals[interval])
+                        gotData = True
+                except:
+                        logAndPrint("Problem getting the data...")
+                        time.sleep(1)
+                        pass
+
         indicators = CandleParser(candles)       
         market.currentPrice = getCurrentPrice(client, market.marketname)
         market.macd = round(indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1], 6)
@@ -244,7 +258,7 @@ def main():
                                         if (m.macd > 0.0):
                                                 buyOrder(m, tradeAmount)
 
-                                if (m.rsi < 29):
+                                if (m.rsi < 32):
                                         m.readyToBuy = True
 
                         elif (m.positionActive == True):
