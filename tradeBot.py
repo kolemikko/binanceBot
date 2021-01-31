@@ -26,15 +26,15 @@ logger.info('Bot started...')
 
 #------------------------------------------------------------------------------------
 
-followedMarkets = {'BTC' : 'trade' , 'ETH' : 'trade'}
+followedMarkets = {'DOGE' : 'trade'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
 
-tradeAmount = 1000.0
+tradeAmount = 100.0
 
-updateRate = 30
+updateRate = 5
 cooldown = int(10 / updateRate) 
-timeSpan = int(45 / updateRate)
+timeSpan = int(60 / updateRate)
 
 ticks = {}
 
@@ -72,7 +72,7 @@ class Market:
                         self.arrayIndex = 0
 
         def getAverageMacd(self):
-                return round(average(self.macdArray), 2)
+                return average(self.macdArray)
 
         def getAverageRsi(self):
                 return round(average(self.rsiArray), 2)
@@ -222,10 +222,9 @@ def updateData(market, interval):
 def main():
         markets = []
         for m, t in followedMarkets.items():
-                if (m == 'BTC'):
-                        market = Market(m, t) 
-                        updateBalance(client, market)
-                        markets.append(market)
+                market = Market(m, t) 
+                updateBalance(client, market)
+                markets.append(market)
                 
         for m in markets:
                 global ticks
@@ -236,28 +235,28 @@ def main():
 
         while (True):
                 for m in markets:
-                        updateData(m, '15Min')
+                        updateData(m, '1Min')
 
                         print("RSI: {} | MACD: {} ({}) | {} Balance: {} ".format(m.rsi, m.macd, m.getAverageMacd(), m.coin, m.balance), end='\r')
                         
                         if (m.positionActive == False):
                                 if (m.readyToBuy):
-                                        if (m.macd > -1.0):
+                                        if (m.macd > 0.0):
                                                 buyOrder(m, tradeAmount)
 
-                                if (m.rsi < 29 and m.macd < -4.0):
+                                if (m.rsi < 29):
                                         m.readyToBuy = True
 
                         elif (m.positionActive == True):
                                 if (m.readyToSell):
-                                        if (m.macd < 3.5):
+                                        if (m.macd < 0.0):
                                                 sellOrder(m, tradeAmount)
 
-                                if (m.rsi > 70 or m.macd > 4):
+                                if (m.rsi > 70):
                                         m.readyToSell = True
 
                                 # stop-loss
-                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd() - 3.0):
+                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd()):
                                         sellOrder(m, tradeAmount)
 
                         m.lastPrice = m.currentPrice
