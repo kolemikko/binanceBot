@@ -211,7 +211,7 @@ def updateData(market, interval):
         candles = client.get_klines(symbol=market.marketname, interval=intervals[interval])
         indicators = CandleParser(candles)       
         market.currentPrice = getCurrentPrice(client, market.marketname)
-        market.macd = round(indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1], 2)
+        market.macd = indicators.dea[len(candles) - 1] - indicators.macdSignal[len(candles) - 1]
         market.rsi = round(indicators.rsi5[-1], 2)
         market.ma200 = round(indicators.ma200[-1], 2)
 
