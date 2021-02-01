@@ -186,15 +186,22 @@ def sellOrder(market, amount):
                 orderPrice = getCurrentPrice(client, market.marketname)
                 orderAmount = round(math.floor(amount * 10**ticks[market.coin] / orderPrice)/float(10**ticks[market.coin]), market.precision)
 
-        order = client.order_market_sell(symbol=market.marketname, quantity=orderAmount)
+        orderAccepted = False
+        while not orderAccepted:
+                try:
+                        order = client.order_market_sell(symbol=market.marketname, quantity=orderAmount)
+                        orderAccepted = True
+                except:
+                        time.sleep(1)
+                        pass
 
         orderRecorded = False
         while not orderRecorded:
                 try:
                         stat = client.get_order(symbol=market.marketname, orderId=order[u'orderId'])
                         orderRecorded = True
-                        time.sleep(5)
                 except:
+                        time.sleep(5)
                         pass
 
         while stat[u'status'] != 'FILLED':
