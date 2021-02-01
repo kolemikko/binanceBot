@@ -26,13 +26,13 @@ logger.info('Bot started...')
 
 #------------------------------------------------------------------------------------
 
-followedMarkets = {'DOGE' : 'trade'}
+followedMarkets = {'BTC' : 'trade', 'ETH' : 'trade'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
 
 tradeAmount = 100.0
 
-updateRate = 5
+updateRate = 30
 cooldown = int(10 / updateRate) 
 timeSpan = int(60 / updateRate)
 
@@ -258,7 +258,7 @@ def main():
 
         while (True):
                 for m in markets:
-                        updateData(m, '1Min')
+                        updateData(m, '15Min')
 
                         print("RSI: {} | MACD: {} ({}) | {} Balance: {} ".format(m.rsi, m.macd, m.getAverageMacd(), m.coin, m.balance), end='\r')
                         
@@ -267,20 +267,20 @@ def main():
                                         if (m.macd > 0.0):
                                                 buyOrder(m, tradeAmount)
 
-                                if (m.rsi < 40):
+                                if (m.rsi < 40 and m.macd < 0.0 ):
                                         m.readyToBuy = True
 
                         elif (m.positionActive == True):
                                 if (m.readyToSell):
                                         if (m.macd < 0.0):
-                                                sellOrder(m, 'all')
+                                                sellOrder(m, tradeAmount)
 
                                 if (m.rsi > 70):
                                         m.readyToSell = True
 
                                 # stop-loss
-                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd()):
-                                        sellOrder(m, 'all')
+                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd() - 2.0):
+                                        sellOrder(m, tradeAmount)
 
                         m.lastPrice = m.currentPrice
 
