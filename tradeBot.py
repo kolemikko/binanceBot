@@ -180,11 +180,8 @@ def buyOrder(market, amount):
 
 def sellOrder(market, amount):
 
-        if (amount == 'all'):
-                orderAmount = market.balance
-        else:
-                orderPrice = getCurrentPrice(client, market.marketname)
-                orderAmount = round(math.floor(amount * 10**ticks[market.coin] / orderPrice)/float(10**ticks[market.coin]), market.precision)
+        orderPrice = getCurrentPrice(client, market.marketname)
+        orderAmount = round(math.floor(amount * 10**ticks[market.coin] / orderPrice)/float(10**ticks[market.coin]), market.precision)
 
         orderAccepted = False
         while not orderAccepted:
@@ -279,7 +276,7 @@ def main():
                                         m.readyToSell = True
 
                                 # stop-loss
-                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd() - 2.0):
+                                elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd() * 0.98):
                                         sellOrder(m, tradeAmount)
 
                         m.lastPrice = m.currentPrice
