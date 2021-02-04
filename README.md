@@ -1,7 +1,10 @@
 # BinanceBot #
 
-A simple trading bot using python API for cryptocurrency exchange Binance. Capable to trade in multiple markets almost simultaneously based on relative strength index (RSI) and moving averages.
+A simple trading bot using python API for cryptocurrency exchange Binance. Capable to trade in multiple markets by using relative strength index (RSI) and moving averages.
 
+#### Config ####
+
+Remember to add config.py file with apiKey and apiSecretKey variables including your own api key information.
 
 #### Dependencies ####
 
