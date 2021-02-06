@@ -21,21 +21,18 @@ fh = logging.FileHandler('tradeBot.log', mode='w')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 logger.addHandler(fh)
-
 logger.info('Bot started...')
 
 #------------------------------------------------------------------------------------
 
-followedMarkets = {'BTC' : 'trade', 'ETH' : 'trade'}
+followedMarkets = {'BTC' : 'hoard', 'ETH' : 'hoard'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
 
 tradeAmount = 100.0
 
 updateRate = 30
-cooldown = int(10 / updateRate) 
 timeSpan = int(60 / updateRate)
-
 ticks = {}
 
 #------------------------------------------------------------------------------------
@@ -125,7 +122,6 @@ def getCurrentPrice(client, market):
 def updateBalance(client, market):
         market.balance = getCurrentBalance(client, market.coin)
 
-
 #------------------------------------------------------------------------------------
 
 def logAndPrint(message):
@@ -139,7 +135,6 @@ def buyOrder(market, amount):
         orderPrice = getCurrentPrice(client, market.marketname)
         orderAmount = round(math.floor(amount * 10**ticks[market.coin] / orderPrice)/float(10**ticks[market.coin]), market.precision)
 
-        # order = client.order_limit_buy(symbol=market.marketname, quantity=orderAmount, price=orderPrice)
         order = client.order_market_buy(symbol=market.marketname, quantity=orderAmount)
 
         orderRecorded = False
