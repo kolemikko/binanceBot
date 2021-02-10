@@ -7,7 +7,7 @@ This is very much WIP.
 
 #### Config ####
 
-Remember to add config.py file with apiKey and apiSecretKey variables including your own api key information.
+Remember to add your own API key information to "apiKey" and "apiSecretKey" variables in config.py file, from config.py file you can also define which coins are traded and what's the budget.
 
 #### Dependencies ####
 

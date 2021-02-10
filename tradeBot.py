@@ -10,6 +10,8 @@ import talib
 
 import config
 client = Client(config.apiKey, config.apiSecretKey)
+tradeAmount = config.tradeAmount
+followedMarkets = config.markets
 
 #------------------------------------------------------------------------------------
 
@@ -25,11 +27,8 @@ logger.info('Bot started...')
 
 #------------------------------------------------------------------------------------
 
-followedMarkets = {'BTC' : 'hoard', 'ETH' : 'hoard'}
 intervals = {'1Min' : Client.KLINE_INTERVAL_1MINUTE, '15Min' : Client.KLINE_INTERVAL_15MINUTE, '30Min' : Client.KLINE_INTERVAL_30MINUTE, '1H' : Client.KLINE_INTERVAL_1HOUR, '4H' : Client.KLINE_INTERVAL_4HOUR, '6H' : Client.KLINE_INTERVAL_6HOUR }
 stableCoin = 'BUSD'
-
-tradeAmount = 100.0
 
 updateRate = 30
 timeSpan = int(60 / updateRate)
