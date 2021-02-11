@@ -32,7 +32,6 @@ stableCoin = 'BUSD'
 
 updateRate = 30
 timeSpan = int(60 / updateRate)
-ticks = {}
 
 #------------------------------------------------------------------------------------
 
@@ -45,6 +44,7 @@ class Market:
                 self.precision = client.get_symbol_info(self.marketname)['baseAssetPrecision'] - 2
                 self.currentPrice = getCurrentPrice(client, self.marketname)
                 self.lastPrice = 0.0
+                self.ticks = 0.0
 
                 self.positionActive = False
                 self.readyToBuy = False
@@ -132,7 +132,7 @@ def logAndPrint(message):
 def buyOrder(market, amount):
 
         orderPrice = getCurrentPrice(client, market.marketname)
-        orderAmount = round(math.floor(amount * 10**ticks[market.coin] / orderPrice)/float(10**ticks[market.coin]), market.precision)
+        orderAmount = round(math.floor(amount * 10**market.ticks / orderPrice)/float(10**market.ticks), market.precision)
 
         order = client.order_market_buy(symbol=market.marketname, quantity=orderAmount)
 
@@ -172,10 +172,13 @@ def buyOrder(market, amount):
 
 #------------------------------------------------------------------------------------
 
-def sellOrder(market, amount):
+def sellOrder(market):
 
+        if (market.tactic == 'hoard'):
+                amount = tradeAmount
+        
         orderPrice = getCurrentPrice(client, market.marketname)
-        orderAmount = round(math.floor(amount * 10**ticks[market.coin] / orderPrice)/float(10**ticks[market.coin]), market.precision)
+        orderAmount = round(math.floor(amount * 10**market.ticks / orderPrice)/float(10**market.ticks), market.precision)
 
         orderAccepted = False
         while not orderAccepted:
@@ -238,14 +241,11 @@ def main():
         for m, t in followedMarkets.items():
                 market = Market(m, t) 
                 updateBalance(client, market)
-                markets.append(market)
-                
-        for m in markets:
-                global ticks
-                for filt in client.get_symbol_info(m.marketname)['filters']:
+                for filt in client.get_symbol_info(market.marketname)['filters']:
                         if filt['filterType'] == 'LOT_SIZE':
-                                ticks[m.coin] = filt['stepSize'].find('1') - 2
+                                market.ticks = filt['stepSize'].find('1') - 2
                                 break
+                markets.append(market)
 
         while (True):
                 for m in markets:
@@ -255,8 +255,8 @@ def main():
                         
                         if (m.positionActive == False):
                                 if (m.readyToBuy):
-                                        if (m.macd > 0.0):
-                                                buyOrder(m, tradeAmount)
+                                        # if (m.macd > 0.0):
+                                        buyOrder(m, tradeAmount)
 
                                 if (m.rsi < 40 and m.macd < 0.0 ):
                                         m.readyToBuy = True
@@ -264,14 +264,14 @@ def main():
                         elif (m.positionActive == True):
                                 if (m.readyToSell):
                                         if (m.macd < 0.0):
-                                                sellOrder(m, tradeAmount)
+                                                sellOrder(m)
 
                                 if (m.rsi > 70):
                                         m.readyToSell = True
 
                                 # stop-loss
                                 elif (m.boughtPrice > m.currentPrice and m.macd < m.getAverageMacd() * 0.98):
-                                        sellOrder(m, tradeAmount)
+                                        sellOrder(m)
 
                         m.lastPrice = m.currentPrice
 
